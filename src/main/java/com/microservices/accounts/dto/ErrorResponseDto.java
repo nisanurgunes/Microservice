@@ -11,4 +11,5 @@ public class ErrorResponseDto {
   private String apiPath;
   private HttpStatus errorCode;
   private LocalDateTime errorTime;
+  private String errorMsg;
 }

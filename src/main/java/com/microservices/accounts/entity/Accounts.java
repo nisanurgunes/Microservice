@@ -2,7 +2,13 @@ package com.microservices.accounts.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
+import lombok.*;
 
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Accounts extends BaseEntity {
   @Column(name = "customer_id")
   private Long customerId;
