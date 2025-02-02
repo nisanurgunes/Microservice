@@ -29,4 +29,11 @@ public class CustomerDto {
   public void setMobileNumber(String mobileNumber) {
     this.mobileNumber = mobileNumber;
   }
+  private AccountsDto accountsDto;
+  public AccountsDto getAccountsDto() {
+    return accountsDto;
+  }
+  public void setAccountsDto(AccountsDto accountsDto) {
+    this.accountsDto = accountsDto;
+  }
 }
