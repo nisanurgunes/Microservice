@@ -1,15 +1,29 @@
 package com.microservices.accounts.dto;
 
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 @Data
-@AllArgsConstructor
 public class ErrorResponseDto {
-  private String apiPath;
-  private HttpStatus errorCode;
-  private LocalDateTime errorTime;
-  private String errorMsg;
+  private String message;
+  private HttpStatus status;
+  private LocalDateTime timestamp;
+  private String details;
+
+  // Parametresiz constructor
+  public ErrorResponseDto() {
+    // Parametresiz constructor işlemleri
+  }
+
+  // Parametreli constructor (Önerilen güncelleme)
+  public ErrorResponseDto(
+      String message, HttpStatus status, LocalDateTime timestamp, String details) {
+    this.message = message;
+    this.status = status;
+    this.timestamp = timestamp;
+    this.details = details;
+  }
+
+  // Getter ve Setter metodları
 }

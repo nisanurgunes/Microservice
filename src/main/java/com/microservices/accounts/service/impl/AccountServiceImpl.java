@@ -9,40 +9,58 @@ import com.microservices.accounts.mapper.CustomerMapper;
 import com.microservices.accounts.repository.AccountsRepository;
 import com.microservices.accounts.repository.CustomerRepository;
 import com.microservices.accounts.service.AccountService;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
-  AccountsRepository accountsRepository;
-  CustomerRepository customerRepository;
+  private final AccountsRepository accountsRepository;
+  private final CustomerRepository customerRepository;
+
+  // Constructor injection (manuel olarak)
+  public AccountServiceImpl(
+      AccountsRepository accountsRepository, CustomerRepository customerRepository) {
+    this.accountsRepository = accountsRepository;
+    this.customerRepository = customerRepository;
+  }
 
   @Override
   public void createAccount(CustomerDto customerDto) {
     Customer customer = CustomerMapper.mapToCustomer(customerDto, new Customer());
     Optional<Customer> optionalCustomer =
         customerRepository.findByMobileNumber(customerDto.getMobileNumber());
-
     if (optionalCustomer.isPresent()) {
       throw new CustomerAlreadyExistException(
-          "Customer already exist" + customerDto.getMobileNumber());
+          "Customer already registered with given mobileNumber " + customerDto.getMobileNumber());
     }
+    customer.setCreatedBy("Admin");
+    customer.setUpdatedAt(LocalDateTime.now());
+    customer.setCreatedAt(LocalDateTime.now());
+
     Customer savedCustomer = customerRepository.save(customer);
-    accountsRepository.save(createNewAccounts(savedCustomer));
+    accountsRepository.save(createNewAccount(savedCustomer));
   }
 
-  private Accounts createNewAccounts(Customer customer) {
+  private Accounts createNewAccount(Customer customer) {
     Accounts newAccount = new Accounts();
     newAccount.setCustomerId(customer.getCustomerId());
-    long randomAccNumber = 1000000000L + new Random().nextInt(900000000);
 
+    // Hesap numarasını oluştur
+    long randomAccNumber = 1000000000L + new Random().nextInt(900000000);
     newAccount.setAccountNumber(randomAccNumber);
+
+    // Hesap türü
     newAccount.setAccountType(AccountsConstants.SAVINGS);
-    newAccount.setBranchAddress(AccountsConstants.ADDRESS);
+
+    newAccount.setBranchAddress("123 Main Street, New York"); // Branch adresi burada atanıyor.
+
+    // Zaman damgaları
+    newAccount.setCreatedAt(LocalDateTime.now());
+    newAccount.setCreatedBy("Admin");
+
     return newAccount;
   }
 }
