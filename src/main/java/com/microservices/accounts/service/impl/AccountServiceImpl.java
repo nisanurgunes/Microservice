@@ -23,7 +23,6 @@ public class AccountServiceImpl implements AccountService {
   private final AccountsRepository accountsRepository;
   private final CustomerRepository customerRepository;
 
-  // Constructor injection (manuel olarak)
   public AccountServiceImpl(
       AccountsRepository accountsRepository, CustomerRepository customerRepository) {
     this.accountsRepository = accountsRepository;
@@ -39,9 +38,8 @@ public class AccountServiceImpl implements AccountService {
       throw new CustomerAlreadyExistException(
           "Customer already registered with given mobileNumber " + customerDto.getMobileNumber());
     }
-    customer.setCreatedBy("Admin");
+
     customer.setUpdatedAt(LocalDateTime.now());
-    customer.setCreatedAt(LocalDateTime.now());
 
     Customer savedCustomer = customerRepository.save(customer);
     accountsRepository.save(createNewAccount(savedCustomer));
@@ -56,10 +54,7 @@ public class AccountServiceImpl implements AccountService {
 
     newAccount.setAccountType(AccountsConstants.SAVINGS);
 
-    newAccount.setBranchAddress("123 Main Street, New York"); // Branch adresi burada atanıyor.
-
-    newAccount.setCreatedAt(LocalDateTime.now());
-    newAccount.setCreatedBy("Admin");
+    newAccount.setBranchAddress("123 Main Street, New York");
 
     return newAccount;
   }

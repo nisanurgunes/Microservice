@@ -1,25 +1,35 @@
 package com.microservices.accounts.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
 
+  @CreatedDate
   @Column(updatable = false, insertable = true)
   private LocalDateTime createdAt;
 
+  @LastModifiedDate
   @Column(updatable = true, insertable = true)
   private LocalDateTime updatedAt;
 
+  @CreatedBy
   @Column(insertable = true, updatable = true)
   private String createdBy;
 
+  @LastModifiedBy
   @Column(insertable = true, updatable = true)
   private String updatedBy;
 
-  // Getter and Setter for createdAt
   public LocalDateTime getCreatedAt() {
     return createdAt;
   }
