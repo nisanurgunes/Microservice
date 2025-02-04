@@ -2,14 +2,47 @@ package com.microservices.accounts.exception;
 
 import com.microservices.accounts.dto.ErrorResponseDto;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+  private final View error;
+
+  public GlobalExceptionHandler(View error) {
+    this.error = error;
+  }
+
+  @Override
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+    Map<String, String> validationErrors = new HashMap<>();
+    List<ObjectError> validationErrorList = ex.getBindingResult().getAllErrors();
+    validationErrorList.forEach(
+        (error) -> {
+          String fieldName = ((FieldError) error).getField();
+          String validationMsg = error.getDefaultMessage();
+          validationErrors.put(fieldName, validationMsg);
+        });
+    return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler(CustomerAlreadyExistException.class)
   public ResponseEntity<ErrorResponseDto> handleCustomerAlreadyExistException(
       CustomerAlreadyExistException exception, WebRequest webRequest) {
@@ -32,5 +65,17 @@ public class GlobalExceptionHandler {
             LocalDateTime.now(),
             exception.getMessage());
     return new ResponseEntity<>(errorResponseDto, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponseDto> handleGlobalException(
+      Exception exception, WebRequest webRequest) {
+    ErrorResponseDto errorResponseDto =
+        new ErrorResponseDto(
+            webRequest.getDescription(false),
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            LocalDateTime.now(),
+            exception.getMessage());
+    return new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
